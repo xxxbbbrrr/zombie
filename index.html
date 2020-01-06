@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>打彊屍</title>
+    <style>
+
+        #game {
+            width: 1500px;
+            height: 450px;
+            cursor: url(./img/cursor2.png) 50 50, auto;
+            overflow: hidden;
+            position: relative;
+            margin: 80px auto;
+        }
+        
+        body {
+            background-image: url(./img/bgi.jpg);
+            overflow: hidden;
+        }
+    
+        #game img {
+            height: 150px;
+            position: absolute;
+        }
+
+        #record {
+            position: relative;
+            left: 45%;
+            top: 10%;
+            color: red;
+            font-weight:bold;
+            font-size: 30px;
+        }
+
+        #start {
+            color: white;
+        }
+    
+    </style>
+</head>
+<body>
+
+    <div id="record">
+        <input type="button" style="width: 150px; height: 75px; border: none; background-image: url(./img/blood.jpg);" value="開始闖關" id="start">
+        <p>分數：<span id="score">0</span> 分</p>
+        <p>剩餘：<span id="sec">0</span> 秒</p>
+    </div>    
+
+    <div id="game"></div> 
+    
+    <script src="./js/jquery-3.4.1.min.js"></script>
+    <script>
+        $(function(){
+            // 分數
+            let score = 0;
+            // 遊戲時間
+            let sec = 15;
+
+            // 遊戲倒數計時
+            let gametimer = 0;
+
+            // 彊屍流水號
+            let zbid = 0;
+
+            // 隨機
+            let rand = (num) => {
+                return Math.round(Math.random()*num);
+            }
+
+            // 移動彊屍
+            let movezb = (id) => {
+                $(`#zb${id}`).animate({
+                    left: rand(90)+"%",
+                    top: rand(65)+"%"
+                }, 3000, function(){
+                    movezb(id);
+                })
+            }
+
+            // 點開始按鈕時
+            $("#start").on("click", function(){
+                // 將開始按鈕停用
+                $(this).attr("disabled", true);
+
+                // 重設時間及分數
+                sec = 15;
+                $("#sec").text(sec);
+                score = 0;
+                $("#score").text(score);
+
+                // 開始倒數
+                gametimer = setInterval(()=> {
+                    // 秒數減 1 ，修改文字
+                    sec--;
+                    $("#sec").text(sec);
+
+                    // 如果到 0
+                    if(sec == 0){
+                        clearInterval(gametimer);
+                        $(this).attr("disabled", false);
+                        setTimeout(()=>{
+                            alert("時間到");
+                            $("#game img").remove();
+                        },100)
+                    }
+
+                    let num = rand(10);
+                    if(num > 0){
+                        $("#game").append(`<img src="./img/1.gif" id="zb${zbid}">`);
+                        $(`#zb${zbid}`).css({left: rand(90)+"%", top: rand(65)+"%"});
+                        movezb(zbid);
+                        zbid++;
+                    }
+                }, 1000)
+            })
+
+            $("#game").on("click", "img", function(){
+                num = 1
+                $(this).attr("src", "./img/blood.png").fadeOut(3000);
+                $(this).stop();
+                $(this).css("pointer-events", "none");
+                score++;
+                $("#score").text(score);
+            })
+
+        })
+    
+    </script>
+</body>
+</html>
